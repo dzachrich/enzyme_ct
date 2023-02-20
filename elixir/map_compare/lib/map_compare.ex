@@ -61,38 +61,41 @@ defmodule MapCompare do
     IO.inspect(m1, label: "compare m1")
     IO.inspect(m2, label: "compare m2")
 
-    list = Enum.reduce(m1, fn {key, v1}, list ->
-      IO.inspect([key,v1,list], label: "key, v1, list")
-      if Map.has_key?(m2, key) do
-        v2 = m2[key]
-        if v1 === v2 do
-          {}
-        else
-          if is_map(v1) && is_map(v2) do
-            v_list = compare(v1, v2)
-            if (v_list == list) do
-              list
-            else
-              v_list
-            end
+    list =
+      Enum.reduce(m1, fn {key, v1}, list ->
+        IO.inspect([key, v1, list], label: "key, v1, list")
+
+        if Map.has_key?(m2, key) do
+          v2 = m2[key]
+
+          if v1 === v2 do
+            {}
           else
-            {"~", key, v1, v2}
+            if is_map(v1) && is_map(v2) do
+              v_list = compare(v1, v2)
+
+              if v_list == list do
+                list
+              else
+                v_list
+              end
+            else
+              {"~", key, v1, v2}
+            end
           end
+        else
+          {"-", key, v1}
         end
-      else
-        {"-", key, v1}
-      end
-    end)
+      end)
 
     cur_list = list
-    list = Enum.reduce(Map.keys(m2) -- Map.keys(m1), cur_list, fn key, list ->
-      IO.inspect([key,m2[key],list], label: "key, m2[key], list")
-      {"+", key, m2[key]}
-    end)
+
+    list =
+      Enum.reduce(Map.keys(m2) -- Map.keys(m1), cur_list, fn key, list ->
+        IO.inspect([key, m2[key], list], label: "key, m2[key], list")
+        {"+", key, m2[key]}
+      end)
 
     list
-
   end
-
-
 end

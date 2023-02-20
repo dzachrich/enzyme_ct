@@ -27,13 +27,19 @@ cd enzyme_ct
 ```
 
 
-### Usage/Testing
+### Usage/Testing/Benchmarking
 
 To run the ruby tests, do the following:
 ```shell
 cd ruby
 bundle install
 ruby hash_compare_test.rb
+```
+To benchmark:
+```shell
+ruby benchmark.rb
+
+<add benchmark results here>
 ```
 
 To run the elixir tests, do the following:
@@ -42,6 +48,13 @@ cd elixir/map_compare
 mix deps.get
 mix test
 ```
+To benchmark:
+```shell
+mix run lib/benchmark.ex
+
+<add benchmark results here>
+```
+
 ### Additional Notes
 #### Approach taken
 - Create test modules to confirm working solutions
@@ -91,5 +104,5 @@ Just like mim and he.
 
 ### Contact
 David Zachrich
-[dave@zachrich.com](mailto: dave@zachrich.com)
-[614.619.1096](tel: +16146191096)
+dave@zachrich.com
+614.619.1096
