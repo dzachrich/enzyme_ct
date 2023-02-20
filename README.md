@@ -39,7 +39,9 @@ To benchmark:
 ```shell
 ruby benchmark.rb
 
-<add benchmark results here>
+       user     system      total        real
+hash_compare  9.200000   0.030000   9.230000 (  9.232210)
+shallow: true  9.280000   0.030000   9.310000 (  9.331891)
 ```
 
 To run the elixir tests, do the following:
@@ -52,7 +54,17 @@ To benchmark:
 ```shell
 mix run lib/benchmark.ex
 
-<add benchmark results here>
+Name                  ips        average  deviation         median         99th %
+superset           9.27 K      107.90 μs   ±129.10%      101.17 μs      176.37 μs
+subset             9.07 K      110.24 μs    ±42.50%      105.79 μs      177.35 μs
+flat_map           4.24 K      235.66 μs    ±31.37%      229.04 μs      402.42 μs
+map.flatten        2.33 K      428.34 μs    ±24.19%         422 μs      614.31 μs
+
+Comparison: 
+superset           9.27 K
+subset             9.07 K - 1.02x slower +2.34 μs
+flat_map           4.24 K - 2.18x slower +127.76 μs
+map.flatten        2.33 K - 3.97x slower +320.43 μs
 ```
 
 ### Additional Notes
