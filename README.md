@@ -52,19 +52,40 @@ mix test
 ```
 To benchmark:
 ```shell
-mix run lib/benchmark.ex
+mix run lib/benchmark.exs
 
-Name                  ips        average  deviation         median         99th %
-superset           9.27 K      107.90 μs   ±129.10%      101.17 μs      176.37 μs
-subset             9.07 K      110.24 μs    ±42.50%      105.79 μs      177.35 μs
-flat_map           4.24 K      235.66 μs    ±31.37%      229.04 μs      402.42 μs
-map.flatten        2.33 K      428.34 μs    ±24.19%         422 μs      614.31 μs
+Operating System: macOS
+CPU Information: Apple M1
+Number of Available Cores: 8
+Available memory: 16 GB
+Elixir 1.14.2
+Erlang 25.1.2
+
+Benchmark suite executing with the following configuration:
+warmup: 2 s
+time: 5 s
+memory time: 0 ns
+reduction time: 0 ns
+parallel: 1
+inputs: none specified
+Estimated total run time: 28 s
+
+Benchmarking flat_map ...
+Benchmarking map.flatten ...
+Benchmarking subset small ...
+Benchmarking superset small ...
+
+Name                     ips        average  deviation         median         99th %
+superset small       52.92 K       18.90 μs    ±53.62%       18.46 μs       28.67 μs
+subset small         52.12 K       19.19 μs   ±216.75%       18.58 μs       25.54 μs
+flat_map              4.29 K      233.18 μs    ±14.40%      225.75 μs      403.54 μs
+map.flatten           2.39 K      418.23 μs    ±31.63%      411.73 μs      596.73 μs
 
 Comparison: 
-superset           9.27 K
-subset             9.07 K - 1.02x slower +2.34 μs
-flat_map           4.24 K - 2.18x slower +127.76 μs
-map.flatten        2.33 K - 3.97x slower +320.43 μs
+superset small       52.92 K
+subset small         52.12 K - 1.02x slower +0.29 μs
+flat_map              4.29 K - 12.34x slower +214.29 μs
+map.flatten           2.39 K - 22.13x slower +399.33 μs
 ```
 
 ### Additional Notes
