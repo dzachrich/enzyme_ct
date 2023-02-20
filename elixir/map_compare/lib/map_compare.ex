@@ -52,20 +52,21 @@ defmodule MapCompare do
 
   # maps equal, keys the same, values are unchanged
   def compare(m1, m1, _path) do
-#    IO.inspect(m1, label: "maps equal")
+    #    IO.inspect(m1, label: "maps equal")
     {}
   end
 
   # comparing two unequal maps
   def compare(m1 = %{}, m2 = %{}, path) do
-#    IO.inspect([m1,m2], label: "compare m1 to m2")
+    #    IO.inspect([m1,m2], label: "compare m1 to m2")
 
     list =
       Enum.reduce(m1, fn {key, v1}, list ->
-        new_path = case blank?(path) do
-                      true -> key
-                      _ -> "#{path}.#{key}"
-                    end
+        new_path =
+          case blank?(path) do
+            true -> key
+            _ -> "#{path}.#{key}"
+          end
 
         if Map.has_key?(m2, key) do
           v2 = m2[key]
@@ -82,12 +83,12 @@ defmodule MapCompare do
                 v_list
               end
             else
-#              IO.inspect([key, {"~", new_path, v1, v2}], label: "key, entry")
+              #              IO.inspect([key, {"~", new_path, v1, v2}], label: "key, entry")
               {"~", new_path, v1, v2}
             end
           end
         else
-#          IO.inspect([key, {"-", new_path, v1}], label: "key, entry")
+          #          IO.inspect([key, {"-", new_path, v1}], label: "key, entry")
           {"-", new_path, v1}
         end
       end)
@@ -96,7 +97,7 @@ defmodule MapCompare do
 
     list =
       Enum.reduce(Map.keys(m2) -- Map.keys(m1), cur_list, fn key, list ->
-#        IO.inspect([key, {"+", key, m2[key]}], label: "key, entry")
+        #        IO.inspect([key, {"+", key, m2[key]}], label: "key, entry")
         {"+", key, m2[key]}
       end)
 
@@ -105,5 +106,4 @@ defmodule MapCompare do
 
   defp blank?(str) when not is_nil(str), do: IO.iodata_length(str) == 0
   defp blank?(_), do: true
-
 end
