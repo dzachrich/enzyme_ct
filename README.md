@@ -35,13 +35,15 @@ cd ruby
 bundle install
 ruby hash_compare_test.rb
 ```
-To benchmark:
+To benchmark ruby version:
 ```shell
 ruby benchmark.rb
 
        user     system      total        real
-hash_compare  9.200000   0.030000   9.230000 (  9.232210)
-shallow: true  9.280000   0.030000   9.310000 (  9.331891)
+hash_compare h1<>h2  2.397046   0.011735   2.408781 (  2.413892)
+hash_compare h1==h2  3.249378   0.013121   3.262499 (  3.280968)
+hash_compare h1<>h2 (shallow: true)  2.412508   0.008110   2.420618 (  2.426091)
+hash_compare h1==h2 (shallow: true)  0.008175   0.000068   0.008243 (  0.008243)
 ```
 
 To run the elixir tests, do the following:
@@ -50,7 +52,7 @@ cd elixir/map_compare
 mix deps.get
 mix test
 ```
-To benchmark:
+To benchmark elixir version:
 ```shell
 mix run lib/benchmark.exs
 
