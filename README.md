@@ -70,24 +70,18 @@ memory time: 0 ns
 reduction time: 0 ns
 parallel: 1
 inputs: none specified
-Estimated total run time: 28 s
+Estimated total run time: 14 s
 
-Benchmarking flat_map ...
-Benchmarking map.flatten ...
 Benchmarking subset small ...
 Benchmarking superset small ...
 
 Name                     ips        average  deviation         median         99th %
-superset small       52.92 K       18.90 μs    ±53.62%       18.46 μs       28.67 μs
-subset small         52.12 K       19.19 μs   ±216.75%       18.58 μs       25.54 μs
-flat_map              4.29 K      233.18 μs    ±14.40%      225.75 μs      403.54 μs
-map.flatten           2.39 K      418.23 μs    ±31.63%      411.73 μs      596.73 μs
+superset small        2.85 M      350.73 ns  ±8828.84%         250 ns         417 ns
+subset small          2.80 M      356.58 ns  ±8863.01%         291 ns         458 ns
 
 Comparison: 
-superset small       52.92 K
-subset small         52.12 K - 1.02x slower +0.29 μs
-flat_map              4.29 K - 12.34x slower +214.29 μs
-map.flatten           2.39 K - 22.13x slower +399.33 μs
+superset small        2.85 M
+subset small          2.80 M - 1.02x slower +5.84 ns
 ```
 
 ### Additional Notes
