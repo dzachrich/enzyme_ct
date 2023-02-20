@@ -7,15 +7,27 @@ h2 = {'a' => 'this', 'b' => 'that', 'c' => true, 'd' => 123, 'e' => [1,"the othe
 n = 50_000
 
 Benchmark.bm do |benchmark|
-  benchmark.report("hash_compare") do
+  benchmark.report("hash_compare h1<>h2") do
     n.times do
       Enzyme.hash_compare(h1, h2)
     end
   end
 
-  benchmark.report("shallow: true") do
+  benchmark.report("hash_compare h1==h2") do
+    n.times do
+      Enzyme.hash_compare(h1, h1)
+    end
+  end
+
+  benchmark.report("hash_compare h1<>h2 (shallow: true)") do
     n.times do
       Enzyme.hash_compare(h1, h2, { shallow: true })
+    end
+  end
+
+  benchmark.report("hash_compare h1==h2 (shallow: true)") do
+    n.times do
+      Enzyme.hash_compare(h1, h1, { shallow: true })
     end
   end
 end
