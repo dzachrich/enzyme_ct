@@ -41,29 +41,31 @@ defmodule MapCompare do
   ## Examples
   A much more complex nested example would return a list of multiple differences.
 
-      iex> m1 = %{"a" => "this", "b" => "that", "c" => true, "d" => 123, "e" => [1,"the other",%{ "h" => "value1"}], "f" => %{ "g" => "some value", "h" => %{ "j" => 1, "k" => [1,2,3]}}}
-      iex> m2 = %{"a" => "this",                "c" => true, "d" => 123, "e" => [1,"the other 2",%{ "h" => "value2"}], "f" => %{ "g" => "some value", "h" => %{ "j" => 2}}}
+      iex> m1 = %{"a" => "this", "b" => "that", "c" => true, "d" => 123, "e" => {1,"the other",%{ "h" => "value1"}}, "f" => %{ "g" => "some value", "h" => %{ "j" => 1, "k" => [1,2,3]}}}
+      iex> m2 = %{"a" => "this",                "c" => true, "d" => 123, "e" => {1,"the other 2",%{ "h" => "value2"}}, "f" => %{ "g" => "some value", "h" => %{ "j" => 2}}}
       iex> MapCompare.compare(m1,m2)
-      {{"-", "e[2]", {"h"=>"value1"}}, {"-", "e[1]", "the other"}, {"+", "e[1]", "the other 2"}, {"+", "e[2]", {"h"=>"value2"}}, {"-", "f.h.k", [1, 2, 3]}, {"~", "f.h.j", 1, 2}}
+      {{"-", "e[2]", %{"h" => "value1"}}, {"-", "e[1]", "the other"}, {"+", "e[1]", "the other 2"}, {"+", "e[2]", %{"h" => "value2"}}, {"-", "f.h.k", [1, 2, 3]}, {"~", "f.h.j", 1, 2}}
 
   """
 
-  def compare(m1, m2)
+  def compare(m1, m2, path \\ "")
 
   # maps equal, keys the same, values are unchanged
-  def compare(m1, m1) do
-    IO.inspect(m1, label: "maps equal")
+  def compare(m1, m1, _path) do
+#    IO.inspect(m1, label: "maps equal")
     {}
   end
 
   # comparing two unequal maps
-  def compare(m1 = %{}, m2 = %{}) do
-    IO.inspect(m1, label: "compare m1")
-    IO.inspect(m2, label: "compare m2")
+  def compare(m1 = %{}, m2 = %{}, path) do
+#    IO.inspect([m1,m2], label: "compare m1 to m2")
 
     list =
       Enum.reduce(m1, fn {key, v1}, list ->
-        IO.inspect([key, v1, list], label: "key, v1, list")
+        new_path = case blank?(path) do
+                      true -> key
+                      _ -> "#{path}.#{key}"
+                    end
 
         if Map.has_key?(m2, key) do
           v2 = m2[key]
@@ -72,7 +74,7 @@ defmodule MapCompare do
             {}
           else
             if is_map(v1) && is_map(v2) do
-              v_list = compare(v1, v2)
+              v_list = compare(v1, v2, new_path)
 
               if v_list == list do
                 list
@@ -80,11 +82,13 @@ defmodule MapCompare do
                 v_list
               end
             else
-              {"~", key, v1, v2}
+#              IO.inspect([key, {"~", new_path, v1, v2}], label: "key, entry")
+              {"~", new_path, v1, v2}
             end
           end
         else
-          {"-", key, v1}
+#          IO.inspect([key, {"-", new_path, v1}], label: "key, entry")
+          {"-", new_path, v1}
         end
       end)
 
@@ -92,10 +96,14 @@ defmodule MapCompare do
 
     list =
       Enum.reduce(Map.keys(m2) -- Map.keys(m1), cur_list, fn key, list ->
-        IO.inspect([key, m2[key], list], label: "key, m2[key], list")
+#        IO.inspect([key, {"+", key, m2[key]}], label: "key, entry")
         {"+", key, m2[key]}
       end)
 
     list
   end
+
+  defp blank?(str) when not is_nil(str), do: IO.iodata_length(str) == 0
+  defp blank?(_), do: true
+
 end
