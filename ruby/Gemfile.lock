@@ -1,0 +1,18 @@
+GEM
+  remote: http://rubygems.org/
+  specs:
+    hashdiff (1.0.1)
+    power_assert (2.0.1)
+    test-unit (3.5.3)
+      power_assert
+
+PLATFORMS
+  arm64-darwin-21
+  ruby
+
+DEPENDENCIES
+  hashdiff
+  test-unit
+
+BUNDLED WITH
+   2.3.7
