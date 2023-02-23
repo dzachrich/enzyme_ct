@@ -48,20 +48,38 @@ defmodule MapCompare do
 
   """
 
-  def compare(m1, m2, path \\ "")
+  def compare(m1, m2, path \\ "", diffs \\ [])
 
   # maps equal, keys the same, values are unchanged
-  def compare(m1, m1, _path) do
-    #    IO.inspect(m1, label: "maps equal")
-    {}
+  def compare(m1, m1, _path, diffs) do
+    # IO.inspect({"=", path, m1, m1}, label: "equal")
+    #    [{"=", path, m1}] ++ diffs
+    diffs
+  end
+
+  def compare(m1, m2, path, diffs) when not is_map(m1) and not is_list(m1) do
+    # IO.inspect({"~", path, m1, m2}, label: "changed")
+    [{"~", path, m1, m2}] ++ diffs
+  end
+
+  def compare(m1, m2, path, diffs) when not is_map(m2) and not is_list(m2) do
+    # IO.inspect({"~", path, m1, m2}, label: "changed")
+    [{"~", path, m1, m2}] ++ diffs
+  end
+
+  def compare(l1, l2, path, diffs) when is_list(l1) and is_list(l2) do
+    # IO.inspect([l1, l2, path], label: "compare l1 to l2")
+    compare(l1, l2, path, 0, diffs)
   end
 
   # comparing two unequal maps
-  def compare(m1 = %{}, m2 = %{}, path) do
-    #    IO.inspect([m1,m2], label: "compare m1 to m2")
+  def compare(m1 = %{}, m2 = %{}, path, diffs) do
+    # IO.inspect([m1, m2, path], label: "compare m1 to m2")
 
-    list =
-      Enum.reduce(m1, fn {key, v1}, list ->
+    mdiffs =
+      Enum.reduce(m1, fn {key, v1}, _diffs ->
+        # IO.inspect(key, label: "key")
+
         new_path =
           case blank?(path) do
             true -> key
@@ -72,36 +90,56 @@ defmodule MapCompare do
           v2 = m2[key]
 
           if v1 === v2 do
-            {}
+            # IO.inspect([key, {"=", new_path, v1}], label: "key, entry")
+            #            [{"=", new_path, v1}]
+            []
           else
             if is_map(v1) && is_map(v2) do
-              v_list = compare(v1, v2, new_path)
-
-              if v_list == list do
-                list
-              else
-                v_list
-              end
+              compare(v1, v2, new_path, diffs)
             else
-              #              IO.inspect([key, {"~", new_path, v1, v2}], label: "key, entry")
-              {"~", new_path, v1, v2}
+              if is_list(v1) && is_list(v2) do
+                compare(v1, v2, new_path, 0, diffs)
+              else
+                # IO.inspect([key, {"~", new_path, v1, v2}], label: "key, entry")
+                [{"~", new_path, v1, v2}]
+              end
             end
           end
         else
-          #          IO.inspect([key, {"-", new_path, v1}], label: "key, entry")
-          {"-", new_path, v1}
+          # IO.inspect([key, {"-", new_path, v1}], label: "key, entry")
+          [{"-", new_path, v1}]
         end
       end)
 
-    cur_list = list
-
-    list =
-      Enum.reduce(Map.keys(m2) -- Map.keys(m1), cur_list, fn key, list ->
-        #        IO.inspect([key, {"+", key, m2[key]}], label: "key, entry")
-        {"+", key, m2[key]}
+    adiffs =
+      Enum.reduce(Map.keys(m2) -- Map.keys(m1), [], fn key, _diffs ->
+        # IO.inspect([key, {"+", key, m2[key]}], label: "key, entry")
+        [{"+", key, m2[key]}]
       end)
 
-    list
+    mdiffs ++ adiffs ++ diffs
+  end
+
+  def compare([], [], _path, _index, diffs), do: diffs
+
+  def compare([h1 | t1], [h2 | t2], path, index, diffs) do
+    ldiffs =
+      if h1 == h2 do
+        #        [{"=", "[#{path}#{index}]", h1}]
+        []
+      else
+        [{"~", "[#{path}#{index}]", h1, h2}]
+      end
+
+    compare(t1, t2, "#{path}[#{index}]", index + 1, ldiffs ++ diffs)
+  end
+
+  def compare([], [l2], path, index, diffs) do
+    [{"+", "[#{path}#{index}]", l2}] ++ diffs
+  end
+
+  def compare([l1], [], path, index, diffs) do
+    [{"-", "[#{path}#{index}]", l1}] ++ diffs
   end
 
   defp blank?(str) when not is_nil(str), do: IO.iodata_length(str) == 0

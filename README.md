@@ -45,6 +45,8 @@ hash_compare h1==h2  3.249378   0.013121   3.262499 (  3.280968)
 hash_compare h1<>h2 (shallow: true)  2.412508   0.008110   2.420618 (  2.426091)
 hash_compare h1==h2 (shallow: true)  0.008175   0.000068   0.008243 (  0.008243)
 ```
+Note that the shallow hash compare when the two hashes are equal consumes very little cpu, as expected, but if they are not equal the execution time is even longer than for that of the deep compare.  
+That is because if the hashes are not equal doing the shallow compare, a deep compare is performed to determine the differences.  But the tradeoff to perform a shallow compare first would be worth it, if most of the hashes being presented for comparison were equal, particularly when we note that the cost of confirming the equality of two equal hashes is so much more cpu intensive with the deep compare. 
 
 To run the elixir tests, do the following:
 ```shell
