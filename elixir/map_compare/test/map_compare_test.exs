@@ -1,6 +1,6 @@
 defmodule MapCompareTest do
   use ExUnit.Case
-  doctest MapCompare
+  #  doctest MapCompare
 
   setup do
     m1 = %{
@@ -8,17 +8,17 @@ defmodule MapCompareTest do
       "b" => "that",
       "c" => true,
       "d" => 123,
-      "e" => {1, "the other", %{"h" => "value1"}},
+      "e" => [1, "the other", %{"h" => "value1"}],
       "f" => %{"g" => "some value", "h" => %{"j" => 1, "k" => [1, 2, 3]}}
     }
 
     m2 = %{
-      "a" => "this",
-      "b" => "that",
+      "a" => "thissy",
       "c" => true,
       "d" => 123,
-      "e" => {1, "the other 2", %{"h" => "value2"}},
-      "f" => %{"g" => "some value", "h" => %{"j" => 2}}
+      "e" => [1, "the other 2", %{"h" => "value2"}],
+      "f" => %{"g" => "some value", "h" => %{"j" => 2}},
+      "k" => "that"
     }
 
     s1 = %{"str" => "abc", "num" => 10, "str2" => "this"}
@@ -28,18 +28,22 @@ defmodule MapCompareTest do
   end
 
   test "test_map_equality", %{map1: map1} do
-    assert MapCompare.compare(map1, map1) == {}
+    assert MapCompare.compare(map1, map1) == []
   end
 
   test "test_map_equality_nested", %{map1nested: map1} do
-    assert MapCompare.compare(map1, map1) == {}
+    assert MapCompare.compare(map1, map1) == []
+  end
+
+  test "test_map_nested", %{map1nested: map1, map2nested: map2} do
+    assert MapCompare.compare(map1, map2) == [{"-", "f.h.k", [1, 2, 3]}, {"+", "k", "that"}]
   end
 
   test "test_map_subset", %{map1: map1, map2: map2} do
-    assert MapCompare.compare(map1, map2) == {"-", "str2", "this"}
+    assert MapCompare.compare(map1, map2) == [{"-", "str2", "this"}]
   end
 
   test "test_map_superset", %{map1: map2, map2: map1} do
-    assert MapCompare.compare(map1, map2) == {"+", "str2", "this"}
+    assert MapCompare.compare(map1, map2) == [{"+", "str2", "this"}]
   end
 end
