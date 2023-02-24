@@ -13,28 +13,28 @@ defmodule MapCompare do
       iex> m1 = %{"a" => "this", "b" => "that"}
       iex> m2 = %{"a" => "this", "b" => "that"}
       iex> MapCompare.compare(m1,m2)
-      {}
+      []
 
     - keys the same, value is changed, indicated by '~' and the previous and new value
 
       iex> m1 = %{"a" => "this", "b" => "that"}
       iex> m2 = %{"a" => "this", "b" => "the other"}
       iex> MapCompare.compare(m1,m2)
-      {"~","b","that","the other"}
+      [{"~","b","that","the other"}]
 
     - new key has been added in second map, indicated by '+' and the new value
 
       iex> m1 = %{"a" => "this", "b" => "that"}
       iex> m2 = %{"a" => "this", "b" => "that", "c" => true}
       iex> MapCompare.compare(m1,m2)
-      {"+","c",true}
+      [{"+","c",true}]
 
     - new key has been removed from second map, indicated by '-' and the old value
 
       iex> m1 = %{"a" => "this", "b" => "that"}
       iex> m2 = %{"a" => "this"}
       iex> MapCompare.compare(m1,m2)
-      {"-","b","that"}
+      [{"-","b","that"}]
 
     In order to compare the differences between two deeply nested maps, a recursive solution will be used
 
@@ -44,7 +44,7 @@ defmodule MapCompare do
       iex> m1 = %{"a" => "this", "b" => "that", "c" => true, "d" => 123, "e" => {1,"the other",%{ "h" => "value1"}}, "f" => %{ "g" => "some value", "h" => %{ "j" => 1, "k" => [1,2,3]}}}
       iex> m2 = %{"a" => "this",                "c" => true, "d" => 123, "e" => {1,"the other 2",%{ "h" => "value2"}}, "f" => %{ "g" => "some value", "h" => %{ "j" => 2}}}
       iex> MapCompare.compare(m1,m2)
-      {{"-", "e[2]", %{"h" => "value1"}}, {"-", "e[1]", "the other"}, {"+", "e[1]", "the other 2"}, {"+", "e[2]", %{"h" => "value2"}}, {"-", "f.h.k", [1, 2, 3]}, {"~", "f.h.j", 1, 2}}
+      [{{"-", "e[2]", %{"h" => "value1"}},{"-", "b", "that"}, {"-", "e[1]", "the other"}, {"+", "e[1]", "the other 2"}, {"+", "e[2]", %{"h" => "value2"}}, {"-", "f.h.k", [1, 2, 3]}, {"~", "f.h.j", 1, 2}}]
 
   """
 
