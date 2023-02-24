@@ -1,6 +1,6 @@
 defmodule MapCompareTest do
   use ExUnit.Case
-  #  doctest MapCompare
+  doctest MapCompare
 
   setup do
     m1 = %{
