@@ -10,7 +10,7 @@ In the interest of time, I have implemented a wrapper using the existing open so
 
 The hashdiff gem is a recursive solution, but does have an unresolved issue when comparing hashes containing large internal arrays, which is documented in the [Limitations/Issues](####-Limitations/Issues) section below.
 
-For the elixir implementation, I would implement a recursive solution, and have started but do not quite have it running and passing tests just yet.
+For the elixir implementation, I have implemented a recursive solution, with passing tests.
 
 ### Prerequisites
 
@@ -37,13 +37,15 @@ ruby hash_compare_test.rb
 ```
 To benchmark ruby version:
 ```shell
+ruby 3.1.2p20 (2022-04-12 revision 4491bb740a) [arm64-darwin21]
+
 ruby benchmark.rb
 
        user     system      total        real
-hash_compare h1<>h2  2.397046   0.011735   2.408781 (  2.413892)
-hash_compare h1==h2  3.249378   0.013121   3.262499 (  3.280968)
-hash_compare h1<>h2 (shallow: true)  2.412508   0.008110   2.420618 (  2.426091)
-hash_compare h1==h2 (shallow: true)  0.008175   0.000068   0.008243 (  0.008243)
+hash_compare h1<>h2  2.380356   0.009058   2.389414 (  2.397801)
+hash_compare h1==h2  3.239222   0.010878   3.250100 (  3.258526)
+hash_compare h1<>h2 (shallow: true)  2.403141   0.007438   2.410579 (  2.412564)
+hash_compare h1==h2 (shallow: true)  0.008200   0.000071   0.008271 (  0.008274)
 ```
 Note that the shallow hash compare when the two hashes are equal consumes very little cpu, as expected, but if they are not equal the execution time is even longer than for that of the deep compare.  
 That is because if the hashes are not equal doing the shallow compare, a deep compare is performed to determine the differences.  But the tradeoff to perform a shallow compare first would be worth it, if most of the hashes being presented for comparison were equal, particularly when we note that the cost of confirming the equality of two equal hashes is so much more cpu intensive with the deep compare. 
@@ -103,7 +105,7 @@ nested map m1<>m2        0.47 M - 439.91x slower +2138.08 ns
   - Wrap [`hashdiff`](https://www.rubydoc.info/gems/hashdiff) gem for ruby solution
   - Recursion for elixir solution 
     - looked at the elixir [`map_diff`](https://hexdocs.pm/map_diff/MapDiff.html) hex package to get started, but very much disliked the output
-    - attempt to get output in format more consistent with ruby `hashdiff` gem
+    - output differences in format consistent with ruby `hashdiff` gem
 
 #### Alternative solutions/considerations
 - Benchmark both approaches to determine/verify performance improvements
@@ -114,6 +116,7 @@ nested map m1<>m2        0.47 M - 439.91x slower +2138.08 ns
 - Convert ruby hash input parameters to HashWithIndifferentAccess to allow input hashes with symbol keys (the `hashdiff` gem already allows this)
 - Or scrub input with `hash = hash.transform_keys(&:to_s)` to convert any symbol keys to string keys
 - Demo elixir solution via livebook (requires adding instructions for installing Livebook)
+- Complete ruby comparison vs elixir implementation using benchmark-ips and benchee to get better side-by-side comparison
 
 #### Limitations/Issues
 - Because the ruby solution uses the [`Hashdiff`](https://www.rubydoc.info/gems/hashdiff) gem, if the hash contains large internal arrays, it will have severe performance [issues](https://github.com/liufengyun/hashdiff/issues/49), because it uses the [LCS(longest common subsequence)](https://en.wikipedia.org/wiki/Longest_common_subsequence) algorithm to determine differences, resulting in an O(n^2) complexity.  So if this is the case, be sure to disable use of the LCS algorithm which is on by default using `use_lcs: false`
