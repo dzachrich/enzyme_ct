@@ -9,6 +9,7 @@ m1 = %{
   "e" => [1, "the other", %{"h" => "value1"}],
   "f" => %{"g" => "some value", "h" => %{"j" => 1, "k" => [1, 2, 3]}}
 }
+m3 = m1
 
 m2 = %{
   "a" => "this",
@@ -25,5 +26,7 @@ s2 = %{"str" => "abc", "num" => 10}
 Benchee.run(%{
   #    "nested" => fn -> MapCompare.compare(m1, m2) end,
   "subset small" => fn -> MapCompare.compare(s1, s2) end,
-  "superset small" => fn -> MapCompare.compare(s2, s1) end
+  "superset small" => fn -> MapCompare.compare(s2, s1) end,
+  "nested map m1==m3" => fn -> MapCompare.compare(m1, m3) end,
+  "nested map m1<>m2" => fn -> MapCompare.compare(m1, m2) end
 })

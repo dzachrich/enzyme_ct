@@ -43,8 +43,18 @@ defmodule MapCompare do
 
       iex> m1 = %{"a" => "this", "b" => "that", "c" => true, "d" => 123, "e" => {1,"the other",%{ "h" => "value1"}}, "f" => %{ "g" => "some value", "h" => %{ "j" => 1, "k" => [1,2,3]}}}
       iex> m2 = %{"a" => "this",                "c" => true, "d" => 123, "e" => {1,"the other 2",%{ "h" => "value2"}}, "f" => %{ "g" => "some value", "h" => %{ "j" => 2}}}
-      iex> MapCompare.compare(m1,m2)
-      [{{"-", "e[2]", %{"h" => "value1"}},{"-", "b", "that"}, {"-", "e[1]", "the other"}, {"+", "e[1]", "the other 2"}, {"+", "e[2]", %{"h" => "value2"}}, {"-", "f.h.k", [1, 2, 3]}, {"~", "f.h.j", 1, 2}}]
+      iex> MapCompare.compare(m1,m2) |> Enum.sort
+      ...>[
+      ...>     {
+      ...>       {"-", "e[2]", %{"h" => "value1"}},
+      ...>       {"-", "b", "that"},
+      ...>       {"-", "e[1]", "the other"},
+      ...>       {"+", "e[1]", "the other 2"},
+      ...>       {"+", "e[2]", %{"h" => "value2"}},
+      ...>       {"-", "f.h.k", [1, 2, 3]},
+      ...>       {"~", "f.h.j", 1, 2}
+      ...>     }
+      ...>   ] |> Enum.sort
 
   """
 
@@ -52,94 +62,72 @@ defmodule MapCompare do
 
   # maps equal, keys the same, values are unchanged
   def compare(m1, m1, _path, diffs) do
-    # IO.inspect({"=", path, m1, m1}, label: "equal")
-    #    [{"=", path, m1}] ++ diffs
     diffs
   end
 
   def compare(m1, m2, path, diffs) when not is_map(m1) and not is_list(m1) do
-    # IO.inspect({"~", path, m1, m2}, label: "changed")
     [{"~", path, m1, m2}] ++ diffs
   end
 
   def compare(m1, m2, path, diffs) when not is_map(m2) and not is_list(m2) do
-    # IO.inspect({"~", path, m1, m2}, label: "changed")
     [{"~", path, m1, m2}] ++ diffs
   end
 
-  def compare(l1, l2, path, diffs) when is_list(l1) and is_list(l2) do
-    # IO.inspect([l1, l2, path], label: "compare l1 to l2")
+  def compare([l1], [l2], path, diffs) do
     compare(l1, l2, path, 0, diffs)
   end
 
-  # comparing two unequal maps
   def compare(m1 = %{}, m2 = %{}, path, diffs) do
-    # IO.inspect([m1, m2, path], label: "compare m1 to m2")
+    Enum.reduce(m1, diffs, fn {key, v1}, ldiffs ->
+      new_path =
+        case blank?(path) do
+          true -> key
+          _ -> "#{path}.#{key}"
+        end
 
-    mdiffs =
-      Enum.reduce(m1, fn {key, v1}, _diffs ->
-        # IO.inspect(key, label: "key")
-
-        new_path =
-          case blank?(path) do
-            true -> key
-            _ -> "#{path}.#{key}"
-          end
-
-        if Map.has_key?(m2, key) do
+      case Map.has_key?(m2, key) do
+        true ->
           v2 = m2[key]
 
-          if v1 === v2 do
-            # IO.inspect([key, {"=", new_path, v1}], label: "key, entry")
-            #            [{"=", new_path, v1}]
-            []
-          else
-            if is_map(v1) && is_map(v2) do
-              compare(v1, v2, new_path, diffs)
-            else
-              if is_list(v1) && is_list(v2) do
-                compare(v1, v2, new_path, 0, diffs)
-              else
-                # IO.inspect([key, {"~", new_path, v1, v2}], label: "key, entry")
-                [{"~", new_path, v1, v2}]
-              end
-            end
-          end
-        else
-          # IO.inspect([key, {"-", new_path, v1}], label: "key, entry")
-          [{"-", new_path, v1}]
-        end
-      end)
+          case v1 === v2 do
+            true ->
+              ldiffs
 
-    adiffs =
+            _ ->
+              cond do
+                is_map(v1) && is_map(v2) -> compare(v1, v2, new_path, ldiffs)
+                is_list(v1) && is_list(v2) -> compare(v1, v2, new_path, 0, ldiffs)
+                true -> [{"~", new_path, v1, v2}] ++ ldiffs
+              end
+          end
+
+        _ ->
+          [{"-", new_path, v1}] ++ ldiffs
+      end
+    end) ++
       Enum.reduce(Map.keys(m2) -- Map.keys(m1), [], fn key, _diffs ->
-        # IO.inspect([key, {"+", key, m2[key]}], label: "key, entry")
         [{"+", key, m2[key]}]
       end)
-
-    mdiffs ++ adiffs ++ diffs
   end
 
   def compare([], [], _path, _index, diffs), do: diffs
 
   def compare([h1 | t1], [h2 | t2], path, index, diffs) do
     ldiffs =
-      if h1 == h2 do
-        #        [{"=", "[#{path}#{index}]", h1}]
-        []
-      else
-        [{"~", "[#{path}#{index}]", h1, h2}]
+      cond do
+        h1 == h2 -> []
+        true -> [{"~", "#{path}[#{index}]", h1, h2}]
       end
 
-    compare(t1, t2, "#{path}[#{index}]", index + 1, ldiffs ++ diffs)
+    compare(t1, t2, "#{path}", index + 1, ldiffs ++ diffs)
   end
 
   def compare([], [l2], path, index, diffs) do
-    [{"+", "[#{path}#{index}]", l2}] ++ diffs
+    [{"+", "#{path}[#{index}]", l2}] ++ diffs
   end
 
   def compare([l1], [], path, index, diffs) do
-    [{"-", "[#{path}#{index}]", l1}] ++ diffs
+    [{"-", "#{path}[#{index}]", l1}] ++ diffs
   end
 
   defp blank?(str) when not is_nil(str), do: IO.iodata_length(str) == 0

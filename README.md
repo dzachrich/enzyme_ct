@@ -72,18 +72,24 @@ memory time: 0 ns
 reduction time: 0 ns
 parallel: 1
 inputs: none specified
-Estimated total run time: 14 s
+Estimated total run time: 28 s
 
+Benchmarking nested map m1<>m2 ...
+Benchmarking nested map m1==m3 ...
 Benchmarking subset small ...
 Benchmarking superset small ...
 
-Name                     ips        average  deviation         median         99th %
-superset small        2.85 M      350.73 ns  ±8828.84%         250 ns         417 ns
-subset small          2.80 M      356.58 ns  ±8863.01%         291 ns         458 ns
+Name                        ips        average  deviation         median         99th %
+nested map m1==m3      205.28 M        4.87 ns  ±2277.90%        4.58 ns        6.25 ns
+subset small             2.77 M      361.25 ns  ±6624.32%         333 ns         458 ns
+superset small           2.50 M      400.45 ns  ±7898.94%         292 ns         458 ns
+nested map m1<>m2        0.47 M     2142.95 ns   ±809.52%        1791 ns        3416 ns
 
 Comparison: 
-superset small        2.85 M
-subset small          2.80 M - 1.02x slower +5.84 ns
+nested map m1==m3      205.28 M
+subset small             2.77 M - 74.16x slower +356.38 ns
+superset small           2.50 M - 82.20x slower +395.58 ns
+nested map m1<>m2        0.47 M - 439.91x slower +2138.08 ns
 ```
 
 ### Additional Notes
