@@ -36,7 +36,17 @@ defmodule MapCompareTest do
   end
 
   test "test_map_nested", %{map1nested: map1, map2nested: map2} do
-    assert MapCompare.compare(map1, map2) == [{"-", "f.h.k", [1, 2, 3]}, {"+", "k", "that"}]
+    assert MapCompare.compare(map1, map2) |> Enum.sort() ==
+             [
+               {"~", "a", "this", "thissy"},
+               {"-", "b", "that"},
+               {"-", "f.h.k", [1, 2, 3]},
+               {"~", "f.h.j", 1, 2},
+               {"~", "e[2]", %{"h" => "value1"}, %{"h" => "value2"}},
+               {"~", "e[1]", "the other", "the other 2"},
+               {"+", "k", "that"}
+             ]
+             |> Enum.sort()
   end
 
   test "test_map_subset", %{map1: map1, map2: map2} do
